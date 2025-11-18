@@ -113,7 +113,8 @@ Messages support placeholders:
 - `{distance}` - Route distance (numeric value from Waze sensor)
 - `{distance_unit}` - Distance unit (km or mi, based on configuration)
 - `{route}` - Route description from Waze
-- `{google_maps_link}` - Fallback link (failsafe only)
+- `{failsafe_threshold}` - Number of failed polls configured (failsafe message only)
+- `{google_maps_link}` - Fallback link (failsafe message only)
 
 ### License
 

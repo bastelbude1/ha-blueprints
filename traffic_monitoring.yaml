@@ -211,9 +211,9 @@ blueprint:
 
     failsafe_message:
       name: Failsafe Message
-      description: Message body for sensor unavailable (use {google_maps_link})
+      description: Message body for sensor unavailable (use {failsafe_threshold}, {google_maps_link})
       default: |
-        Waze sensor is not reachable after multiple attempts!
+        Waze sensor is not reachable after {failsafe_threshold} failed attempts!
 
         Please check traffic manually:
 
@@ -324,7 +324,7 @@ action:
                   - action: telegram_bot.send_message
                     data:
                       title: "{{ failsafe_title }} - {{ now().strftime('%H:%M') }}"
-                      message: "{{ failsafe_message.replace('{google_maps_link}', google_maps_link) }}"
+                      message: "{{ failsafe_message.replace('{failsafe_threshold}', failsafe_threshold | string).replace('{google_maps_link}', google_maps_link) }}"
                       target: "{{ telegram_target }}"
 
                   # Mark state to prevent duplicate failsafe messages
