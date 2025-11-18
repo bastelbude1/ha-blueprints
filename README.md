@@ -73,6 +73,7 @@ After importing the blueprint, create a new automation and configure:
 - Monitoring End Time (default: 09:00:00)
 - Polling Interval (default: 5 minutes)
 - Failsafe Threshold (default: 3 failed polls)
+- Distance Unit (default: km) - Must match your Waze sensor configuration
 - Heavy Traffic Threshold (default: 60 minutes)
 - Light Traffic Threshold (default: 50 minutes)
 - Weekdays Only (default: true)
@@ -106,7 +107,8 @@ After importing the blueprint, create a new automation and configure:
 
 Messages support placeholders:
 - `{travel_time}` - Current travel time in minutes
-- `{distance}` - Route distance in km
+- `{distance}` - Route distance (numeric value from Waze sensor)
+- `{distance_unit}` - Distance unit (km or mi, based on configuration)
 - `{route}` - Route description from Waze
 - `{google_maps_link}` - Fallback link (failsafe only)
 

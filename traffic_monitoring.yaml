@@ -110,21 +110,33 @@ blueprint:
           step: 1
           unit_of_measurement: "polls"
 
+    distance_unit:
+      name: Distance Unit
+      description: Unit for distance display (must match your Waze sensor configuration)
+      default: "km"
+      selector:
+        select:
+          options:
+            - label: "Kilometers (km)"
+              value: "km"
+            - label: "Miles (mi)"
+              value: "mi"
+
     heavy_traffic_title:
       name: Heavy Traffic Message Title
       description: Title for heavy traffic notification
-      default: "🚨 Verkehrswarnung"
+      default: "🚨 Traffic Alert"
       selector:
         text:
 
     heavy_traffic_message:
       name: Heavy Traffic Message
-      description: Message body for heavy traffic (use {travel_time}, {distance}, {route})
+      description: Message body for heavy traffic (use {travel_time}, {distance}, {distance_unit}, {route})
       default: |
-        Achtung: Lange Fahrzeit!
+        Heavy traffic!
 
-        ⏱️ Aktuelle Fahrzeit: {travel_time} Minuten
-        📏 Distanz: {distance} km
+        ⏱️ Travel time: {travel_time} minutes
+        📏 Distance: {distance} {distance_unit}
         🛣️ Route: {route}
       selector:
         text:
@@ -133,18 +145,18 @@ blueprint:
     normal_traffic_title:
       name: Normal Traffic Message Title
       description: Title for normal traffic notification
-      default: "ℹ️ Normale Verkehrslage"
+      default: "ℹ️ Normal Traffic"
       selector:
         text:
 
     normal_traffic_message:
       name: Normal Traffic Message
-      description: Message body for normal traffic (use {travel_time}, {distance}, {route})
+      description: Message body for normal traffic (use {travel_time}, {distance}, {distance_unit}, {route})
       default: |
-        Normaler Verkehr.
+        Normal traffic conditions.
 
-        ⏱️ Fahrzeit: {travel_time} Minuten
-        📏 Distanz: {distance} km
+        ⏱️ Travel time: {travel_time} minutes
+        📏 Distance: {distance} {distance_unit}
         🛣️ Route: {route}
       selector:
         text:
@@ -153,18 +165,18 @@ blueprint:
     light_traffic_title:
       name: Light Traffic Message Title
       description: Title for light traffic notification
-      default: "✅ Freie Fahrt"
+      default: "✅ Light Traffic"
       selector:
         text:
 
     light_traffic_message:
       name: Light Traffic Message
-      description: Message body for light traffic (use {travel_time}, {distance}, {route})
+      description: Message body for light traffic (use {travel_time}, {distance}, {distance_unit}, {route})
       default: |
-        Sehr wenig Verkehr!
+        Light traffic - clear roads!
 
-        ⏱️ Fahrzeit: {travel_time} Minuten
-        📏 Distanz: {distance} km
+        ⏱️ Travel time: {travel_time} minutes
+        📏 Distance: {distance} {distance_unit}
         🛣️ Route: {route}
       selector:
         text:
@@ -207,6 +219,7 @@ variables:
   light_threshold: !input light_traffic_threshold
   polling_interval: !input polling_interval
   failsafe_threshold: !input failsafe_threshold
+  distance_unit: !input distance_unit
   google_maps_link: !input google_maps_link
 
 trigger:
@@ -318,7 +331,7 @@ action:
               - action: telegram_bot.send_message
                 data:
                   title: "{{ heavy_traffic_title }} - {{ now().strftime('%H:%M') }}"
-                  message: "{{ heavy_traffic_message.replace('{travel_time}', travel_time | round(0) | string).replace('{distance}', distance | string).replace('{route}', route | string) }}"
+                  message: "{{ heavy_traffic_message.replace('{travel_time}', travel_time | round(0) | string).replace('{distance}', distance | string).replace('{distance_unit}', distance_unit).replace('{route}', route | string) }}"
                   target: "{{ telegram_target }}"
               - action: input_select.select_option
                 target:
@@ -336,7 +349,7 @@ action:
               - action: telegram_bot.send_message
                 data:
                   title: "{{ light_traffic_title }} - {{ now().strftime('%H:%M') }}"
-                  message: "{{ light_traffic_message.replace('{travel_time}', travel_time | round(0) | string).replace('{distance}', distance | string).replace('{route}', route | string) }}"
+                  message: "{{ light_traffic_message.replace('{travel_time}', travel_time | round(0) | string).replace('{distance}', distance | string).replace('{distance_unit}', distance_unit).replace('{route}', route | string) }}"
                   target: "{{ telegram_target }}"
               - action: input_select.select_option
                 target:
@@ -354,7 +367,7 @@ action:
               - action: telegram_bot.send_message
                 data:
                   title: "{{ normal_traffic_title }} - {{ now().strftime('%H:%M') }}"
-                  message: "{{ normal_traffic_message.replace('{travel_time}', travel_time | round(0) | string).replace('{distance}', distance | string).replace('{route}', route | string) }}"
+                  message: "{{ normal_traffic_message.replace('{travel_time}', travel_time | round(0) | string).replace('{distance}', distance | string).replace('{distance_unit}', distance_unit).replace('{route}', route | string) }}"
                   target: "{{ telegram_target }}"
               - action: input_select.select_option
                 target:
