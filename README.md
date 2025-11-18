@@ -75,11 +75,18 @@ After importing the blueprint, create a new automation and configure:
 - Monitoring End Time (default: 09:00:00)
 - Active Days (default: Mon-Fri) - Select which days automation should run
 - Polling Interval (default: 5 minutes)
-- Failsafe Threshold (default: 3 failed polls)
+- Failsafe Threshold (default: 3 failed polls) - **Failsafe duration (polls × interval) must be < 50% of time window**
 - Distance Unit (default: km) - Must match your Waze sensor configuration
 - Light Traffic Threshold (default: 50 minutes)
 - Heavy Traffic Threshold (default: 60 minutes) - **Must be greater than Light Traffic Threshold**
 - Message titles and content (customizable)
+
+**Important Validations:**
+- Heavy Traffic Threshold must be greater than Light Traffic Threshold
+- Failsafe duration (threshold × polling interval) must be less than 50% of monitoring time window
+  - Example: 90-minute window (07:30-09:00) → failsafe duration must be < 45 minutes
+  - Valid: 3 polls × 5 min = 15 min ✓
+  - Invalid: 10 polls × 5 min = 50 min ✗
 
 ### How It Works
 
@@ -114,6 +121,7 @@ Messages support placeholders:
 - `{distance_unit}` - Distance unit (km or mi, based on configuration)
 - `{route}` - Route description from Waze
 - `{failsafe_threshold}` - Number of failed polls configured (failsafe message only)
+- `{failsafe_duration}` - Duration in minutes until failsafe triggers (threshold × interval) (failsafe message only)
 - `{google_maps_link}` - Fallback link (failsafe message only)
 
 ### License

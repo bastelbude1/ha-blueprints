@@ -211,9 +211,9 @@ blueprint:
 
     failsafe_message:
       name: Failsafe Message
-      description: Message body for sensor unavailable (use {failsafe_threshold}, {google_maps_link})
+      description: Message body for sensor unavailable (use {failsafe_threshold}, {failsafe_duration}, {google_maps_link})
       default: |
-        Waze sensor is not reachable after {failsafe_threshold} failed attempts!
+        Waze sensor is not reachable after {failsafe_threshold} failed attempts ({failsafe_duration} minutes)!
 
         Please check traffic manually:
 
@@ -242,6 +242,9 @@ variables:
   distance_unit: !input distance_unit
   active_days: !input active_days
   google_maps_link: !input google_maps_link
+  monitoring_start: !input monitoring_start
+  monitoring_end: !input monitoring_end
+  failsafe_duration: "{{ (polling_interval | int) * (failsafe_threshold | int) }}"
   day_map:
     mon: 0
     tue: 1
@@ -268,6 +271,15 @@ action:
   - condition: template
     value_template: "{{ heavy_threshold > light_threshold }}"
     alias: "Ensure heavy threshold is greater than light threshold"
+
+  # Validate failsafe duration vs time window
+  - condition: template
+    value_template: >
+      {% set start = strptime(monitoring_start, '%H:%M:%S') %}
+      {% set end = strptime(monitoring_end, '%H:%M:%S') %}
+      {% set window_minutes = (end.hour * 60 + end.minute) - (start.hour * 60 + start.minute) %}
+      {{ failsafe_duration | int < (window_minutes * 0.5) }}
+    alias: "Ensure failsafe duration is less than 50% of time window"
 
   # Update sensor with retry logic (3 attempts, 15s delays)
   - action: homeassistant.update_entity
@@ -324,7 +336,7 @@ action:
                   - action: telegram_bot.send_message
                     data:
                       title: "{{ failsafe_title }} - {{ now().strftime('%H:%M') }}"
-                      message: "{{ failsafe_message.replace('{failsafe_threshold}', failsafe_threshold | string).replace('{google_maps_link}', google_maps_link) }}"
+                      message: "{{ failsafe_message.replace('{failsafe_threshold}', failsafe_threshold | string).replace('{failsafe_duration}', failsafe_duration | string).replace('{google_maps_link}', google_maps_link) }}"
                       target: "{{ telegram_target }}"
 
                   # Mark state to prevent duplicate failsafe messages
