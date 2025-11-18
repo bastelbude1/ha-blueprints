@@ -51,7 +51,8 @@ Monitor Waze Travel Time sensor and send smart Telegram notifications based on t
 
 **Debugging Support:**
 When using a non-Waze numeric sensor for testing:
-- Origin/Destination can be left empty (Google Maps link defaults to https://www.google.com/maps)
+- Disable "Use Waze Sensor Origin/Destination" toggle
+- Provide manual origin/destination OR leave empty (map link defaults to https://www.google.com/maps)
 - Distance and Route will show "N/A" in messages
 - All functionality works normally with just the numeric sensor value
 
