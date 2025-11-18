@@ -24,14 +24,16 @@ Monitor Waze Travel Time sensor and send smart Telegram notifications based on t
 
 ### Installation
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fbastelbude1%2Fha-blueprints%2Fblob%2Fmain%2Ftraffic_monitoring.yaml)
+**Option 1: One-Click Import**
 
-Or manually:
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2Fbastelbude1%2Fha-blueprints%2Fmain%2Ftraffic_monitoring.yaml)
 
-1. Go to Settings → Automations & Scenes → Blueprints
-2. Click "Import Blueprint" button
-3. Enter URL: `https://github.com/bastelbude1/ha-blueprints/blob/main/traffic_monitoring.yaml`
-4. Click "Preview Blueprint" then "Import Blueprint"
+**Option 2: Manual Import**
+
+1. Go to **Settings → Automations & Scenes → Blueprints**
+2. Click **"Import Blueprint"** button (bottom right)
+3. Enter URL: `https://raw.githubusercontent.com/bastelbude1/ha-blueprints/main/traffic_monitoring.yaml`
+4. Click **"Preview Blueprint"** then **"Import Blueprint"**
 
 ### Requirements
 
