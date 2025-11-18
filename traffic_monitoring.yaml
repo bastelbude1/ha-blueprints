@@ -1,15 +1,18 @@
 blueprint:
-  name: Traffic Monitoring with Telegram Notifications V3
+  name: Traffic Monitoring with Telegram Notifications
   description: |
-    Monitor Waze Travel Time sensor and send Telegram notifications based on traffic conditions.
-    V3 features integrated failsafe logic that eliminates the need for separate failsafe automations.
+    Monitor Waze Travel Time sensor and send smart Telegram notifications based on traffic conditions.
 
-    **New in V3:**
+    Features integrated failsafe logic that eliminates the need for separate failsafe automations.
+
+    **Key Features:**
     - Integrated failsafe counter tracks consecutive sensor failures
-    - Failsafe message sent after 3 failures (15 minutes) only if no traffic message was sent
-    - Adaptive to any polling interval (not fixed at 15 minutes)
+    - Configurable polling interval and failsafe threshold
+    - Failsafe message sent only if no traffic message was sent
+    - Adaptive to any polling interval
     - No duplicate messages (single notification per monitoring window)
   domain: automation
+  version: 0.1.0
   input:
     waze_sensor:
       name: Waze Travel Time Sensor
@@ -85,6 +88,28 @@ blueprint:
       selector:
         boolean:
 
+    polling_interval:
+      name: Polling Interval (minutes)
+      description: How often to check the sensor during monitoring window
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 30
+          step: 1
+          unit_of_measurement: "min"
+
+    failsafe_threshold:
+      name: Failsafe Threshold (failed polls)
+      description: Number of consecutive failed polls before sending failsafe message
+      default: 3
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+          unit_of_measurement: "polls"
+
     heavy_traffic_title:
       name: Heavy Traffic Message Title
       description: Title for heavy traffic notification
@@ -156,9 +181,9 @@ blueprint:
       name: Failsafe Message
       description: Message body for sensor unavailable (use {google_maps_link})
       default: |
-        Waze sensor nicht erreichbar nach 3 Versuchen (15 Minuten)!
+        Waze sensor is not reachable after multiple attempts!
 
-        Bitte prüfe den Verkehr manuell:
+        Please check traffic manually:
 
         🗺️ Google Maps:
         {google_maps_link}
@@ -180,11 +205,13 @@ variables:
   telegram_target: !input telegram_target
   heavy_threshold: !input heavy_traffic_threshold
   light_threshold: !input light_traffic_threshold
+  polling_interval: !input polling_interval
+  failsafe_threshold: !input failsafe_threshold
   google_maps_link: !input google_maps_link
 
 trigger:
   - platform: time_pattern
-    minutes: "/5"
+    minutes: "/{{ polling_interval }}"
 
 condition:
   - condition: time
@@ -242,7 +269,7 @@ action:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ states(failed_attempts_counter) | int >= 3 }}"
+                    value_template: "{{ states(failed_attempts_counter) | int >= failsafe_threshold | int }}"
                   - condition: template
                     value_template: "{{ states(traffic_state_helper) == 'none' }}"
                 sequence:

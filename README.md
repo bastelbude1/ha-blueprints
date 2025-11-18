@@ -2,40 +2,35 @@
 
 A collection of Home Assistant blueprints for automation.
 
-## Traffic Monitoring with Telegram Notifications V3
+## Traffic Monitoring with Telegram Notifications
 
-**Blueprint:** `traffic_monitoring_v3.yaml`
+**Version:** 0.1.0
+**Blueprint:** `traffic_monitoring.yaml`
 
 Monitor Waze Travel Time sensor and send smart Telegram notifications based on traffic conditions.
 
 ### Features
 
+- **Configurable polling interval** - Set how often to check traffic (1-30 minutes)
+- **Configurable failsafe threshold** - Define how many failed polls trigger failsafe (1-10 polls)
 - **Integrated failsafe logic** - No separate automations needed
 - **Counter-based failsafe** - Tracks consecutive sensor failures
 - **Smart notifications** - Only ONE message per traffic state change
 - **Three traffic levels** - Heavy, Normal, Light (customizable thresholds)
 - **Weekday only** - Automatically skips weekends
-- **Retry logic** - 3 attempts with 15-second delays
+- **Retry logic** - 3 attempts with 15-second delays per poll
 - **Customizable time windows** - Define monitoring start/end times
 - **Message templates** - Full control over notification content
 
-### What's New in V3
-
-- Integrated failsafe counter tracks consecutive sensor failures
-- Failsafe message sent after 3 failures (15 minutes) only if no traffic message was sent
-- Adaptive to any polling interval (not fixed at 15 minutes)
-- No duplicate messages (single notification per monitoring window)
-- Eliminates need for separate failsafe automations
-
 ### Installation
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fbastelbude1%2Fha-blueprints%2Fblob%2Fmain%2Ftraffic_monitoring_v3.yaml)
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fbastelbude1%2Fha-blueprints%2Fblob%2Fmain%2Ftraffic_monitoring.yaml)
 
 Or manually:
 
 1. Go to Settings → Automations & Scenes → Blueprints
 2. Click "Import Blueprint" button
-3. Enter URL: `https://github.com/bastelbude1/ha-blueprints/blob/main/traffic_monitoring_v3.yaml`
+3. Enter URL: `https://github.com/bastelbude1/ha-blueprints/blob/main/traffic_monitoring.yaml`
 4. Click "Preview Blueprint" then "Import Blueprint"
 
 ### Requirements
@@ -76,6 +71,8 @@ After importing the blueprint, create a new automation and configure:
 **Optional (with defaults):**
 - Monitoring Start Time (default: 07:30:00)
 - Monitoring End Time (default: 09:00:00)
+- Polling Interval (default: 5 minutes)
+- Failsafe Threshold (default: 3 failed polls)
 - Heavy Traffic Threshold (default: 60 minutes)
 - Light Traffic Threshold (default: 50 minutes)
 - Weekdays Only (default: true)
@@ -84,14 +81,15 @@ After importing the blueprint, create a new automation and configure:
 ### How It Works
 
 **Polling:**
-- Triggers every 5 minutes during monitoring window
-- Updates Waze sensor with 3 retry attempts (15s delays)
+- Triggers at configurable interval (default: every 5 minutes) during monitoring window
+- Updates Waze sensor with 3 retry attempts (15s delays per poll)
 
 **Failsafe Logic:**
-- If sensor unavailable after 3 attempts, increments failure counter
-- After 3 consecutive failures (15 minutes), sends failsafe notification
+- If sensor unavailable after 3 retry attempts, increments failure counter
+- After reaching failsafe threshold (default: 3 consecutive failed polls), sends failsafe notification
 - Only sends failsafe if NO traffic message was sent yet
 - Prevents duplicate failsafe messages
+- Example: With 5-minute polling and 3-poll threshold = failsafe after 15 minutes
 
 **Traffic Notifications:**
 - Heavy Traffic (>60 min) - Red alert
