@@ -1,0 +1,338 @@
+blueprint:
+  name: Traffic Monitoring with Telegram Notifications V3
+  description: |
+    Monitor Waze Travel Time sensor and send Telegram notifications based on traffic conditions.
+    V3 features integrated failsafe logic that eliminates the need for separate failsafe automations.
+
+    **New in V3:**
+    - Integrated failsafe counter tracks consecutive sensor failures
+    - Failsafe message sent after 3 failures (15 minutes) only if no traffic message was sent
+    - Adaptive to any polling interval (not fixed at 15 minutes)
+    - No duplicate messages (single notification per monitoring window)
+  domain: automation
+  input:
+    waze_sensor:
+      name: Waze Travel Time Sensor
+      description: The Waze travel time sensor to monitor
+      selector:
+        entity:
+          filter:
+            - integration: waze_travel_time
+            - domain: sensor
+
+    traffic_state_helper:
+      name: Traffic State Helper
+      description: input_select helper to track traffic state (prevents duplicate notifications)
+      selector:
+        entity:
+          filter:
+            - domain: input_select
+
+    failed_attempts_counter:
+      name: Failed Attempts Counter
+      description: input_number helper to track sensor failures for failsafe logic
+      selector:
+        entity:
+          filter:
+            - domain: input_number
+
+    telegram_target:
+      name: Telegram Chat ID
+      description: Your Telegram chat ID for notifications
+      selector:
+        text:
+
+    monitoring_start:
+      name: Monitoring Start Time
+      description: When to start polling the sensor (e.g., "07:30:00")
+      default: "07:30:00"
+      selector:
+        time:
+
+    monitoring_end:
+      name: Monitoring End Time
+      description: When to stop polling the sensor (e.g., "09:00:00")
+      default: "09:00:00"
+      selector:
+        time:
+
+    heavy_traffic_threshold:
+      name: Heavy Traffic Threshold (minutes)
+      description: Travel time above this triggers heavy traffic warning
+      default: 60
+      selector:
+        number:
+          min: 30
+          max: 180
+          step: 5
+          unit_of_measurement: "min"
+
+    light_traffic_threshold:
+      name: Light Traffic Threshold (minutes)
+      description: Travel time below this triggers light traffic notification
+      default: 50
+      selector:
+        number:
+          min: 20
+          max: 120
+          step: 5
+          unit_of_measurement: "min"
+
+    weekdays_only:
+      name: Weekdays Only
+      description: Only run Monday to Friday (skip weekends)
+      default: true
+      selector:
+        boolean:
+
+    heavy_traffic_title:
+      name: Heavy Traffic Message Title
+      description: Title for heavy traffic notification
+      default: "🚨 Verkehrswarnung"
+      selector:
+        text:
+
+    heavy_traffic_message:
+      name: Heavy Traffic Message
+      description: Message body for heavy traffic (use {travel_time}, {distance}, {route})
+      default: |
+        Achtung: Lange Fahrzeit!
+
+        ⏱️ Aktuelle Fahrzeit: {travel_time} Minuten
+        📏 Distanz: {distance} km
+        🛣️ Route: {route}
+      selector:
+        text:
+          multiline: true
+
+    normal_traffic_title:
+      name: Normal Traffic Message Title
+      description: Title for normal traffic notification
+      default: "ℹ️ Normale Verkehrslage"
+      selector:
+        text:
+
+    normal_traffic_message:
+      name: Normal Traffic Message
+      description: Message body for normal traffic (use {travel_time}, {distance}, {route})
+      default: |
+        Normaler Verkehr.
+
+        ⏱️ Fahrzeit: {travel_time} Minuten
+        📏 Distanz: {distance} km
+        🛣️ Route: {route}
+      selector:
+        text:
+          multiline: true
+
+    light_traffic_title:
+      name: Light Traffic Message Title
+      description: Title for light traffic notification
+      default: "✅ Freie Fahrt"
+      selector:
+        text:
+
+    light_traffic_message:
+      name: Light Traffic Message
+      description: Message body for light traffic (use {travel_time}, {distance}, {route})
+      default: |
+        Sehr wenig Verkehr!
+
+        ⏱️ Fahrzeit: {travel_time} Minuten
+        📏 Distanz: {distance} km
+        🛣️ Route: {route}
+      selector:
+        text:
+          multiline: true
+
+    failsafe_title:
+      name: Failsafe Message Title
+      description: Title for sensor unavailable notification
+      default: "⚠️ Waze Sensor Problem"
+      selector:
+        text:
+
+    failsafe_message:
+      name: Failsafe Message
+      description: Message body for sensor unavailable (use {google_maps_link})
+      default: |
+        Waze sensor nicht erreichbar nach 3 Versuchen (15 Minuten)!
+
+        Bitte prüfe den Verkehr manuell:
+
+        🗺️ Google Maps:
+        {google_maps_link}
+      selector:
+        text:
+          multiline: true
+
+    google_maps_link:
+      name: Google Maps Link
+      description: Fallback Google Maps directions link for failsafe
+      default: "https://www.google.com/maps"
+      selector:
+        text:
+
+variables:
+  waze_sensor: !input waze_sensor
+  traffic_state_helper: !input traffic_state_helper
+  failed_attempts_counter: !input failed_attempts_counter
+  telegram_target: !input telegram_target
+  heavy_threshold: !input heavy_traffic_threshold
+  light_threshold: !input light_traffic_threshold
+  google_maps_link: !input google_maps_link
+
+trigger:
+  - platform: time_pattern
+    minutes: "/5"
+
+condition:
+  - condition: time
+    after: !input monitoring_start
+    before: !input monitoring_end
+  - condition: template
+    value_template: "{{ not weekdays_only or now().weekday() < 5 }}"
+    alias: "Weekday check"
+
+action:
+  # Update sensor with retry logic (3 attempts, 15s delays)
+  - action: homeassistant.update_entity
+    target:
+      entity_id: "{{ waze_sensor }}"
+  - delay:
+      seconds: 15
+
+  # Retry attempt 1
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ states(waze_sensor) in ['unknown', 'unavailable'] }}"
+        sequence:
+          - action: homeassistant.update_entity
+            target:
+              entity_id: "{{ waze_sensor }}"
+          - delay:
+              seconds: 15
+
+  # Retry attempt 2
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ states(waze_sensor) in ['unknown', 'unavailable'] }}"
+        sequence:
+          - action: homeassistant.update_entity
+            target:
+              entity_id: "{{ waze_sensor }}"
+          - delay:
+              seconds: 15
+
+  # Branch based on sensor availability
+  - choose:
+      # SENSOR STILL UNAVAILABLE - Handle failsafe logic
+      - conditions:
+          - condition: template
+            value_template: "{{ states(waze_sensor) in ['unknown', 'unavailable'] }}"
+        sequence:
+          # Increment failed attempts counter
+          - action: input_number.increment
+            target:
+              entity_id: "{{ failed_attempts_counter }}"
+
+          # Check if failsafe should trigger (3 failures AND no message sent)
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ states(failed_attempts_counter) | int >= 3 }}"
+                  - condition: template
+                    value_template: "{{ states(traffic_state_helper) == 'none' }}"
+                sequence:
+                  # Send failsafe message
+                  - action: telegram_bot.send_message
+                    data:
+                      title: "{{ failsafe_title }} - {{ now().strftime('%H:%M') }}"
+                      message: "{{ failsafe_message.replace('{google_maps_link}', google_maps_link) }}"
+                      target: "{{ telegram_target }}"
+
+                  # Mark state to prevent duplicate failsafe messages
+                  - action: input_select.select_option
+                    target:
+                      entity_id: "{{ traffic_state_helper }}"
+                    data:
+                      option: "heavy"
+
+          # Stop - sensor unavailable
+          - stop: "Sensor unavailable after 3 attempts"
+
+    # SENSOR IS AVAILABLE - Send traffic notifications
+    default:
+      # Reset failed attempts counter (sensor is working)
+      - action: input_number.set_value
+        target:
+          entity_id: "{{ failed_attempts_counter }}"
+        data:
+          value: 0
+
+      # Store travel time and current state
+      - variables:
+          travel_time: "{{ states(waze_sensor) | float(0) }}"
+          current_state: "{{ states(traffic_state_helper) }}"
+          distance: "{{ state_attr(waze_sensor, 'distance') }}"
+          route: "{{ state_attr(waze_sensor, 'route') }}"
+
+      # Send notifications based on traffic
+      - choose:
+          # Heavy traffic (> threshold)
+          - conditions:
+              - condition: template
+                value_template: "{{ travel_time > heavy_threshold }}"
+              - condition: template
+                value_template: "{{ current_state != 'heavy' }}"
+            sequence:
+              - action: telegram_bot.send_message
+                data:
+                  title: "{{ heavy_traffic_title }} - {{ now().strftime('%H:%M') }}"
+                  message: "{{ heavy_traffic_message.replace('{travel_time}', travel_time | round(0) | string).replace('{distance}', distance | string).replace('{route}', route | string) }}"
+                  target: "{{ telegram_target }}"
+              - action: input_select.select_option
+                target:
+                  entity_id: "{{ traffic_state_helper }}"
+                data:
+                  option: "heavy"
+
+          # Light traffic (< threshold)
+          - conditions:
+              - condition: template
+                value_template: "{{ travel_time < light_threshold }}"
+              - condition: template
+                value_template: "{{ current_state != 'light' }}"
+            sequence:
+              - action: telegram_bot.send_message
+                data:
+                  title: "{{ light_traffic_title }} - {{ now().strftime('%H:%M') }}"
+                  message: "{{ light_traffic_message.replace('{travel_time}', travel_time | round(0) | string).replace('{distance}', distance | string).replace('{route}', route | string) }}"
+                  target: "{{ telegram_target }}"
+              - action: input_select.select_option
+                target:
+                  entity_id: "{{ traffic_state_helper }}"
+                data:
+                  option: "light"
+
+          # Normal traffic (between thresholds)
+          - conditions:
+              - condition: template
+                value_template: "{{ travel_time >= light_threshold and travel_time <= heavy_threshold }}"
+              - condition: template
+                value_template: "{{ current_state != 'normal' }}"
+            sequence:
+              - action: telegram_bot.send_message
+                data:
+                  title: "{{ normal_traffic_title }} - {{ now().strftime('%H:%M') }}"
+                  message: "{{ normal_traffic_message.replace('{travel_time}', travel_time | round(0) | string).replace('{distance}', distance | string).replace('{route}', route | string) }}"
+                  target: "{{ telegram_target }}"
+              - action: input_select.select_option
+                target:
+                  entity_id: "{{ traffic_state_helper }}"
+                data:
+                  option: "normal"
+
+mode: single
