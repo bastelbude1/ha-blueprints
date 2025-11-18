@@ -79,6 +79,7 @@ After importing the blueprint, create a new automation and configure:
 **Optional for Production / Required for Debugging:**
 - Origin Location (address or coordinates) - Leave empty when debugging with non-Waze sensor
 - Destination Location (address or coordinates) - Leave empty when debugging with non-Waze sensor
+- Map URL Template (default: Google Maps) - Supports Google Maps, OpenStreetMap, Apple Maps, or custom
 
 **Optional (with defaults):**
 - Monitoring Start Time (default: 07:30:00)
@@ -145,11 +146,32 @@ Messages support placeholders:
 - `{failsafe_duration}` - Duration in minutes until failsafe triggers (threshold × interval) (failsafe message only)
 - `{google_maps_link}` - Dynamic Google Maps directions link using configured origin and destination (failsafe message only)
 
-**Google Maps Link:**
-The `{google_maps_link}` placeholder automatically builds a Google Maps directions URL using the origin and destination you configure. For example:
-- Origin: "123 Main St, City" or "47.4722,7.8753"
-- Destination: "456 Oak Ave, Town" or "47.3833,8.4942"
-- Result: Opens Google Maps with directions from origin to destination
+**Map Directions Link:**
+The `{google_maps_link}` placeholder builds a map directions URL using your configured template, origin, and destination.
+
+**Supported Map Services:**
+
+- **Google Maps** (default):
+  ```
+  https://www.google.com/maps/dir/?api=1&origin={origin}&destination={destination}
+  ```
+
+- **OpenStreetMap**:
+  ```
+  https://www.openstreetmap.org/directions?from={origin}&to={destination}
+  ```
+
+- **Apple Maps**:
+  ```
+  https://maps.apple.com/?saddr={origin}&daddr={destination}
+  ```
+
+- **Custom Map Service**: Use any URL with `{origin}` and `{destination}` placeholders
+
+**Examples:**
+- Origin: `123 Main St, City` or `47.4722,7.8753`
+- Destination: `456 Oak Ave, Town` or `47.3833,8.4942`
+- Result: Opens configured map service with directions
 
 ### License
 
