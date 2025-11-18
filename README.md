@@ -192,4 +192,12 @@ MIT License
 
 ### Credits
 
-Educational implementation demonstrating Home Assistant automation patterns.
+Based on the original concept from [Simon42 Community](https://community.simon42.com/t/home-assistant-ehefrau-ueberwachen-mit-waze/64658).
+
+Enhanced with:
+- Blueprint implementation for easy reuse
+- Configurable polling and failsafe thresholds
+- Multi-map service support
+- Smart location detection
+- Comprehensive validation
+- Debugging capabilities
