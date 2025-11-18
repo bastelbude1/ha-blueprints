@@ -75,8 +75,8 @@ After importing the blueprint, create a new automation and configure:
 - Polling Interval (default: 5 minutes)
 - Failsafe Threshold (default: 3 failed polls)
 - Distance Unit (default: km) - Must match your Waze sensor configuration
-- Heavy Traffic Threshold (default: 60 minutes)
 - Light Traffic Threshold (default: 50 minutes)
+- Heavy Traffic Threshold (default: 60 minutes) - **Must be greater than Light Traffic Threshold**
 - Message titles and content (customizable)
 
 ### How It Works
@@ -93,10 +93,11 @@ After importing the blueprint, create a new automation and configure:
 - Example: With 5-minute polling and 3-poll threshold = failsafe after 15 minutes
 
 **Traffic Notifications:**
-- Heavy Traffic (>60 min) - Red alert
-- Normal Traffic (50-60 min) - Info message
-- Light Traffic (<50 min) - Green all-clear
+- **Heavy Traffic** - Travel time > Heavy Threshold (default: >60 min)
+- **Normal Traffic** - Travel time between Light and Heavy Threshold (default: 50-60 min)
+- **Light Traffic** - Travel time < Light Threshold (default: <50 min)
 - Only sends when state changes (no duplicates)
+- **Important:** Heavy Threshold must be greater than Light Threshold
 
 **State Management:**
 - Uses input_select to track current traffic state
