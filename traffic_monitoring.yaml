@@ -238,16 +238,23 @@ blueprint:
         text:
           multiline: true
 
+    use_waze_locations:
+      name: Use Waze Sensor Origin/Destination
+      description: If enabled, origin and destination will be taken from Waze sensor attributes. If disabled or unavailable, uses manual locations below.
+      default: true
+      selector:
+        boolean:
+
     origin:
-      name: Origin Location
-      description: Starting location (address or coordinates) for fallback map link
+      name: Origin Location (Manual)
+      description: Starting location (address or coordinates) - only used if "Use Waze Sensor" is disabled or Waze attributes unavailable
       default: ""
       selector:
         text:
 
     destination:
-      name: Destination Location
-      description: Destination location (address or coordinates) for fallback map link
+      name: Destination Location (Manual)
+      description: Destination location (address or coordinates) - only used if "Use Waze Sensor" is disabled or Waze attributes unavailable
       default: ""
       selector:
         text:
@@ -275,12 +282,25 @@ variables:
   failsafe_threshold: !input failsafe_threshold
   distance_unit: !input distance_unit
   active_days: !input active_days
-  origin: !input origin
-  destination: !input destination
+  use_waze_locations: !input use_waze_locations
+  manual_origin: !input origin
+  manual_destination: !input destination
   map_url_template: !input map_url_template
   monitoring_start: !input monitoring_start
   monitoring_end: !input monitoring_end
   failsafe_duration: "{{ (polling_interval | int) * (failsafe_threshold | int) }}"
+  origin: >
+    {% if use_waze_locations %}
+      {{ state_attr(waze_sensor, 'origin') | default(manual_origin, true) }}
+    {% else %}
+      {{ manual_origin }}
+    {% endif %}
+  destination: >
+    {% if use_waze_locations %}
+      {{ state_attr(waze_sensor, 'destination') | default(manual_destination, true) }}
+    {% else %}
+      {{ manual_destination }}
+    {% endif %}
   google_maps_link: >
     {% if origin != '' and destination != '' %}
       {{ map_url_template.replace('{origin}', origin | urlencode).replace('{destination}', destination | urlencode) }}

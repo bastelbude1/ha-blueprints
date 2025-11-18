@@ -76,10 +76,16 @@ After importing the blueprint, create a new automation and configure:
 - Failed Attempts Counter (input_number)
 - Telegram Chat ID
 
-**Optional for Production / Required for Debugging:**
-- Origin Location (address or coordinates) - Leave empty when debugging with non-Waze sensor
-- Destination Location (address or coordinates) - Leave empty when debugging with non-Waze sensor
+**Optional (for map fallback link):**
+- Use Waze Sensor Origin/Destination (default: true) - Automatically use locations from Waze sensor
+- Origin Location (Manual) - Only used if Waze sensor option disabled or attributes unavailable
+- Destination Location (Manual) - Only used if Waze sensor option disabled or attributes unavailable
 - Map URL Template (default: Google Maps) - Supports Google Maps, OpenStreetMap, Apple Maps, or custom
+
+**Smart Location Detection:**
+- If "Use Waze Sensor" enabled: Automatically extracts origin/destination from Waze sensor attributes
+- If Waze attributes unavailable: Falls back to manual origin/destination
+- If using non-Waze sensor for debugging: Disable "Use Waze Sensor" and provide manual locations
 
 **Optional (with defaults):**
 - Monitoring Start Time (default: 07:30:00)
