@@ -252,7 +252,12 @@ variables:
   monitoring_start: !input monitoring_start
   monitoring_end: !input monitoring_end
   failsafe_duration: "{{ (polling_interval | int) * (failsafe_threshold | int) }}"
-  google_maps_link: "https://www.google.com/maps/dir/?api=1&origin={{ origin | urlencode }}&destination={{ destination | urlencode }}"
+  google_maps_link: >
+    {% if origin != '' and destination != '' %}
+      https://www.google.com/maps/dir/?api=1&origin={{ origin | urlencode }}&destination={{ destination | urlencode }}
+    {% else %}
+      https://www.google.com/maps
+    {% endif %}
   day_map:
     mon: 0
     tue: 1
@@ -385,8 +390,8 @@ action:
       - variables:
           travel_time: "{{ states(waze_sensor) | float(0) }}"
           current_state: "{{ states(traffic_state_helper) }}"
-          distance: "{{ state_attr(waze_sensor, 'distance') }}"
-          route: "{{ state_attr(waze_sensor, 'route') }}"
+          distance: "{{ state_attr(waze_sensor, 'distance') | default('N/A', true) }}"
+          route: "{{ state_attr(waze_sensor, 'route') | default('N/A', true) }}"
 
       # Send notifications based on traffic
       - choose:

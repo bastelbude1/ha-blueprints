@@ -43,6 +43,12 @@ Monitor Waze Travel Time sensor and send smart Telegram notifications based on t
 - Waze Travel Time (or any numeric sensor for debugging/testing)
 - Telegram Bot
 
+**Debugging Support:**
+When using a non-Waze numeric sensor for testing:
+- Origin/Destination can be left empty (Google Maps link defaults to https://www.google.com/maps)
+- Distance and Route will show "N/A" in messages
+- All functionality works normally with just the numeric sensor value
+
 **Helpers (create before using blueprint):**
 
 1. **Traffic State Helper** - `input_select` with these options:
@@ -65,12 +71,14 @@ Monitor Waze Travel Time sensor and send smart Telegram notifications based on t
 After importing the blueprint, create a new automation and configure:
 
 **Required:**
-- Waze Travel Time Sensor
+- Waze Travel Time Sensor (or any numeric sensor for debugging)
 - Traffic State Helper (input_select)
 - Failed Attempts Counter (input_number)
 - Telegram Chat ID
-- Origin Location (for Google Maps fallback link)
-- Destination Location (for Google Maps fallback link)
+
+**Optional for Production / Required for Debugging:**
+- Origin Location (address or coordinates) - Leave empty when debugging with non-Waze sensor
+- Destination Location (address or coordinates) - Leave empty when debugging with non-Waze sensor
 
 **Optional (with defaults):**
 - Monitoring Start Time (default: 07:30:00)
