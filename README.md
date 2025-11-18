@@ -150,10 +150,10 @@ Messages support placeholders:
 - `{route}` - Route description from Waze
 - `{failsafe_threshold}` - Number of failed polls configured (failsafe message only)
 - `{failsafe_duration}` - Duration in minutes until failsafe triggers (threshold × interval) (failsafe message only)
-- `{google_maps_link}` - Dynamic Google Maps directions link using configured origin and destination (failsafe message only)
+- `{map_url}` - Map directions link using configured map service and locations (failsafe message only)
 
 **Map Directions Link:**
-The `{google_maps_link}` placeholder builds a map directions URL using your configured template, origin, and destination.
+The `{map_url}` placeholder builds a map directions URL using your configured template, origin, and destination.
 
 **Supported Map Services:**
 

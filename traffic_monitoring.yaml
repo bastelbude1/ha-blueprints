@@ -23,7 +23,7 @@ blueprint:
     Failsafe Message:
     - {failsafe_threshold} - Number of failed polls configured
     - {failsafe_duration} - Duration in minutes (threshold × interval)
-    - {google_maps_link} - Map directions link (Google Maps, OpenStreetMap, or custom)
+    - {map_url} - Map directions link (configurable: Google Maps, OpenStreetMap, Apple Maps, or custom)
 
     **Default Messages:**
     All message templates can be customized. Use the placeholders above in your custom messages.
@@ -226,14 +226,14 @@ blueprint:
 
     failsafe_message:
       name: Failsafe Message
-      description: Message body for sensor unavailable (use {failsafe_threshold}, {failsafe_duration}, {google_maps_link})
+      description: Message body for sensor unavailable (use {failsafe_threshold}, {failsafe_duration}, {map_url})
       default: |
         Waze sensor is not reachable after {failsafe_threshold} failed attempts ({failsafe_duration} minutes)!
 
         Please check traffic manually:
 
-        🗺️ Google Maps:
-        {google_maps_link}
+        🗺️ Map:
+        {map_url}
       selector:
         text:
           multiline: true
@@ -301,7 +301,7 @@ variables:
     {% else %}
       {{ manual_destination }}
     {% endif %}
-  google_maps_link: >
+  map_url: >
     {% if origin != '' and destination != '' %}
       {{ map_url_template.replace('{origin}', origin | urlencode).replace('{destination}', destination | urlencode) }}
     {% else %}
@@ -413,7 +413,7 @@ action:
                   - action: telegram_bot.send_message
                     data:
                       title: "{{ failsafe_title }} - {{ now().strftime('%H:%M') }}"
-                      message: "{{ failsafe_message.replace('{failsafe_threshold}', failsafe_threshold | string).replace('{failsafe_duration}', failsafe_duration | string).replace('{google_maps_link}', google_maps_link) }}"
+                      message: "{{ failsafe_message.replace('{failsafe_threshold}', failsafe_threshold | string).replace('{failsafe_duration}', failsafe_duration | string).replace('{map_url}', map_url) }}"
                       target: "{{ telegram_target }}"
 
                   # Mark state to prevent duplicate failsafe messages
