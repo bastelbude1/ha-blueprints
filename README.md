@@ -192,7 +192,7 @@ MIT License
 
 ### Credits
 
-Based on the original concept from [Simon42 Community](https://community.simon42.com/t/home-assistant-ehefrau-ueberwachen-mit-waze/64658).
+Inspired by [Simon42 Community](https://community.simon42.com/t/home-assistant-ehefrau-ueberwachen-mit-waze/64658).
 
 Enhanced with:
 - Blueprint implementation for easy reuse
