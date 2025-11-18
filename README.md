@@ -69,6 +69,8 @@ After importing the blueprint, create a new automation and configure:
 - Traffic State Helper (input_select)
 - Failed Attempts Counter (input_number)
 - Telegram Chat ID
+- Origin Location (for Google Maps fallback link)
+- Destination Location (for Google Maps fallback link)
 
 **Optional (with defaults):**
 - Monitoring Start Time (default: 07:30:00)
@@ -133,7 +135,13 @@ Messages support placeholders:
 - `{route}` - Route description from Waze
 - `{failsafe_threshold}` - Number of failed polls configured (failsafe message only)
 - `{failsafe_duration}` - Duration in minutes until failsafe triggers (threshold × interval) (failsafe message only)
-- `{google_maps_link}` - Fallback link (failsafe message only)
+- `{google_maps_link}` - Dynamic Google Maps directions link using configured origin and destination (failsafe message only)
+
+**Google Maps Link:**
+The `{google_maps_link}` placeholder automatically builds a Google Maps directions URL using the origin and destination you configure. For example:
+- Origin: "123 Main St, City" or "47.4722,7.8753"
+- Destination: "456 Oak Ave, Town" or "47.3833,8.4942"
+- Result: Opens Google Maps with directions from origin to destination
 
 ### License
 

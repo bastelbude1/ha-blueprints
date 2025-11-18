@@ -222,10 +222,17 @@ blueprint:
         text:
           multiline: true
 
-    google_maps_link:
-      name: Google Maps Link
-      description: Fallback Google Maps directions link for failsafe
-      default: "https://www.google.com/maps"
+    origin:
+      name: Origin Location
+      description: Starting location (address or coordinates) for Google Maps fallback link
+      default: ""
+      selector:
+        text:
+
+    destination:
+      name: Destination Location
+      description: Destination location (address or coordinates) for Google Maps fallback link
+      default: ""
       selector:
         text:
 
@@ -240,10 +247,12 @@ variables:
   failsafe_threshold: !input failsafe_threshold
   distance_unit: !input distance_unit
   active_days: !input active_days
-  google_maps_link: !input google_maps_link
+  origin: !input origin
+  destination: !input destination
   monitoring_start: !input monitoring_start
   monitoring_end: !input monitoring_end
   failsafe_duration: "{{ (polling_interval | int) * (failsafe_threshold | int) }}"
+  google_maps_link: "https://www.google.com/maps/dir/?api=1&origin={{ origin | urlencode }}&destination={{ destination | urlencode }}"
   day_map:
     mon: 0
     tue: 1
