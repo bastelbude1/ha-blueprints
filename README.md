@@ -13,14 +13,20 @@ Monitor Waze Travel Time sensor and send smart Telegram notifications based on t
 
 - **Configurable polling interval** - Set how often to check traffic (1-30 minutes)
 - **Configurable failsafe threshold** - Define how many failed polls trigger failsafe (1-10 polls)
+- **Automatic failsafe duration** - Calculated as polling interval × threshold
 - **Flexible day selection** - Choose specific days (Mon-Sun) for automation to run
+- **Configurable distance unit** - Choose km or mi to match your Waze sensor
+- **Multi-map service support** - Google Maps, OpenStreetMap, Apple Maps, or custom
+- **Smart location detection** - Auto-extracts origin/destination from Waze sensor or manual override
 - **Integrated failsafe logic** - No separate automations needed
 - **Counter-based failsafe** - Tracks consecutive sensor failures
 - **Smart notifications** - Only ONE message per traffic state change
 - **Three traffic levels** - Heavy, Normal, Light (customizable thresholds)
+- **Comprehensive validation** - Runtime checks for entity configuration and thresholds
 - **Retry logic** - 3 attempts with 15-second delays per poll
 - **Customizable time windows** - Define monitoring start/end times
-- **Message templates** - Full control over notification content
+- **Message templates** - Full control over notification content with multiple placeholders
+- **Debugging support** - Works with any numeric sensor for testing
 
 ### Installation
 
