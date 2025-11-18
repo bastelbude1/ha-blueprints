@@ -40,7 +40,7 @@ Monitor Waze Travel Time sensor and send smart Telegram notifications based on t
 **Home Assistant:** 2021.3+ (for Blueprint support)
 
 **Integrations:**
-- Waze Travel Time
+- Waze Travel Time (or any numeric sensor for debugging/testing)
 - Telegram Bot
 
 **Helpers (create before using blueprint):**
@@ -82,11 +82,22 @@ After importing the blueprint, create a new automation and configure:
 - Message titles and content (customizable)
 
 **Important Validations:**
-- Heavy Traffic Threshold must be greater than Light Traffic Threshold
-- Failsafe duration (threshold × polling interval) must be less than 50% of monitoring time window
-  - Example: 90-minute window (07:30-09:00) → failsafe duration must be < 45 minutes
-  - Valid: 3 polls × 5 min = 15 min ✓
-  - Invalid: 10 polls × 5 min = 50 min ✗
+
+The blueprint validates configuration at runtime and will stop with a clear error message if:
+
+1. **Entity Configuration:**
+   - Waze sensor must exist and have a valid numeric state
+   - Traffic State Helper must be an input_select with required options: `none`, `heavy`, `normal`, `light`
+   - Failed Attempts Counter must be an input_number
+
+2. **Threshold Configuration:**
+   - Heavy Traffic Threshold must be greater than Light Traffic Threshold
+
+3. **Time Window Configuration:**
+   - Failsafe duration (threshold × polling interval) must be < 50% of monitoring time window
+   - Example: 90-minute window (07:30-09:00) → failsafe duration must be < 45 minutes
+   - Valid: 3 polls × 5 min = 15 min ✓
+   - Invalid: 10 polls × 5 min = 50 min ✗
 
 ### How It Works
 

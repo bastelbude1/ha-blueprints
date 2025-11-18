@@ -15,11 +15,10 @@ blueprint:
   input:
     waze_sensor:
       name: Waze Travel Time Sensor
-      description: The Waze travel time sensor to monitor
+      description: The Waze travel time sensor to monitor (or any numeric sensor for debugging)
       selector:
         entity:
           filter:
-            - integration: waze_travel_time
             - domain: sensor
 
     traffic_state_helper:
@@ -267,6 +266,21 @@ condition:
     alias: "Active day check"
 
 action:
+  # Validate entity configurations
+  - condition: template
+    value_template: "{{ states(waze_sensor) not in ['unknown', 'unavailable', 'none'] or states(waze_sensor) | float(0) >= 0 }}"
+    alias: "Validate Waze sensor exists and has a valid state"
+
+  - condition: template
+    value_template: >
+      {% set options = state_attr(traffic_state_helper, 'options') %}
+      {{ options is not none and 'none' in options and 'heavy' in options and 'normal' in options and 'light' in options }}
+    alias: "Validate Traffic State Helper has required options (none, heavy, normal, light)"
+
+  - condition: template
+    value_template: "{{ state_attr(failed_attempts_counter, 'min') is not none and state_attr(failed_attempts_counter, 'max') is not none }}"
+    alias: "Validate Failed Attempts Counter is an input_number"
+
   # Validate thresholds
   - condition: template
     value_template: "{{ heavy_threshold > light_threshold }}"
