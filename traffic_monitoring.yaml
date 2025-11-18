@@ -11,6 +11,22 @@ blueprint:
     - Failsafe message sent only if no traffic message was sent
     - Adaptive to any polling interval
     - No duplicate messages (single notification per monitoring window)
+
+    **Available Message Placeholders:**
+
+    Traffic Messages (Heavy/Normal/Light):
+    - {travel_time} - Current travel time in minutes
+    - {distance} - Route distance (shows "N/A" if unavailable)
+    - {distance_unit} - Distance unit (km or mi)
+    - {route} - Route description (shows "N/A" if unavailable)
+
+    Failsafe Message:
+    - {failsafe_threshold} - Number of failed polls configured
+    - {failsafe_duration} - Duration in minutes (threshold × interval)
+    - {google_maps_link} - Google Maps directions link (or generic if origin/destination empty)
+
+    **Default Messages:**
+    All message templates can be customized. Use the placeholders above in your custom messages.
   domain: automation
   input:
     waze_sensor:
