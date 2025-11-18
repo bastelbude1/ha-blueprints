@@ -12,7 +12,6 @@ blueprint:
     - Adaptive to any polling interval
     - No duplicate messages (single notification per monitoring window)
   domain: automation
-  version: 0.1.0
   input:
     waze_sensor:
       name: Waze Travel Time Sensor
