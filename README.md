@@ -46,8 +46,8 @@ Monitor Waze Travel Time sensor and send smart Telegram notifications based on t
 **Home Assistant:** 2021.3+ (for Blueprint support)
 
 **Integrations:**
-- Waze Travel Time (or any numeric sensor for debugging/testing)
-- Telegram Bot
+- [Waze Travel Time](https://www.home-assistant.io/integrations/waze_travel_time/) (or any numeric sensor for debugging/testing)
+- [Telegram Bot](https://www.home-assistant.io/integrations/telegram_bot/)
 
 **Debugging Support:**
 When using a non-Waze numeric sensor for testing:
