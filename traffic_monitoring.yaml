@@ -81,12 +81,33 @@ blueprint:
           step: 5
           unit_of_measurement: "min"
 
-    weekdays_only:
-      name: Weekdays Only
-      description: Only run Monday to Friday (skip weekends)
-      default: true
+    active_days:
+      name: Active Days
+      description: Select which days the automation should run
+      default:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
       selector:
-        boolean:
+        select:
+          multiple: true
+          options:
+            - label: "Monday"
+              value: "mon"
+            - label: "Tuesday"
+              value: "tue"
+            - label: "Wednesday"
+              value: "wed"
+            - label: "Thursday"
+              value: "thu"
+            - label: "Friday"
+              value: "fri"
+            - label: "Saturday"
+              value: "sat"
+            - label: "Sunday"
+              value: "sun"
 
     polling_interval:
       name: Polling Interval (minutes)
@@ -220,7 +241,16 @@ variables:
   polling_interval: !input polling_interval
   failsafe_threshold: !input failsafe_threshold
   distance_unit: !input distance_unit
+  active_days: !input active_days
   google_maps_link: !input google_maps_link
+  day_map:
+    mon: 0
+    tue: 1
+    wed: 2
+    thu: 3
+    fri: 4
+    sat: 5
+    sun: 6
 
 trigger:
   - platform: time_pattern
@@ -231,8 +261,8 @@ condition:
     after: !input monitoring_start
     before: !input monitoring_end
   - condition: template
-    value_template: "{{ not weekdays_only or now().weekday() < 5 }}"
-    alias: "Weekday check"
+    value_template: "{{ now().weekday() in active_days | map('extract', day_map) | list }}"
+    alias: "Active day check"
 
 action:
   # Update sensor with retry logic (3 attempts, 15s delays)

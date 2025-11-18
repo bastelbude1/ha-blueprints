@@ -13,11 +13,11 @@ Monitor Waze Travel Time sensor and send smart Telegram notifications based on t
 
 - **Configurable polling interval** - Set how often to check traffic (1-30 minutes)
 - **Configurable failsafe threshold** - Define how many failed polls trigger failsafe (1-10 polls)
+- **Flexible day selection** - Choose specific days (Mon-Sun) for automation to run
 - **Integrated failsafe logic** - No separate automations needed
 - **Counter-based failsafe** - Tracks consecutive sensor failures
 - **Smart notifications** - Only ONE message per traffic state change
 - **Three traffic levels** - Heavy, Normal, Light (customizable thresholds)
-- **Weekday only** - Automatically skips weekends
 - **Retry logic** - 3 attempts with 15-second delays per poll
 - **Customizable time windows** - Define monitoring start/end times
 - **Message templates** - Full control over notification content
@@ -71,12 +71,12 @@ After importing the blueprint, create a new automation and configure:
 **Optional (with defaults):**
 - Monitoring Start Time (default: 07:30:00)
 - Monitoring End Time (default: 09:00:00)
+- Active Days (default: Mon-Fri) - Select which days automation should run
 - Polling Interval (default: 5 minutes)
 - Failsafe Threshold (default: 3 failed polls)
 - Distance Unit (default: km) - Must match your Waze sensor configuration
 - Heavy Traffic Threshold (default: 60 minutes)
 - Light Traffic Threshold (default: 50 minutes)
-- Weekdays Only (default: true)
 - Message titles and content (customizable)
 
 ### How It Works
